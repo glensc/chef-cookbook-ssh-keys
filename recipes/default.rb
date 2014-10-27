@@ -4,7 +4,13 @@ if node['ssh_keys']
     next unless bag_users
 
     # Getting node user data
-    user = node['etc']['passwd'][node_user]
+    if node['etc'].nil?
+      # if ohai passwd plugin is disabled try lookup it manually
+      require 'etc'
+      user = Etc.getpwnam(node_user)
+    else
+      user = node['etc']['passwd'][node_user]
+    end
 
     # Defaults for new user
     user = {'uid' => node_user, 'gid' => node_user, 'dir' => "/home/#{node_user}"} unless user
